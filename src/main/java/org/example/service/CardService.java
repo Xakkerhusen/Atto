@@ -5,7 +5,9 @@ import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
 import org.example.dto.ResponsDTO;
 import org.example.enums.Status;
+import org.example.enums.TransactionType;
 import org.example.repository.CardRepository;
+import org.example.repository.TransactionRepository;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -13,6 +15,7 @@ import java.util.List;
 
 public class CardService {
     CardRepository cardRepository = new CardRepository();
+    TransactionRepository transactionRepository = new TransactionRepository();
 
     public boolean createCard(CardDTO card) {
         List<CardDTO> cardList = getCardList();
@@ -92,8 +95,10 @@ public class CardService {
 
     }
 
-    public void reFillCard(ProfileDTO profile, String cardNumber, double amount) {
+    public void reFillCard(ProfileDTO profile, String cardNumber, double amount, TransactionType type) {
         ResponsDTO result = cardRepository.reFill(cardNumber, profile, amount);
+        transactionRepository.creadTransaction(cardNumber, null, amount, type);
+
 
         if (result.success()) {
             System.out.println(result.message());
@@ -126,7 +131,7 @@ public class CardService {
     }
 
     public void changeCardStatusByAdmin(String newStatus, String cardNumber) {
-        if (newStatus.equals("ACTIVE") || newStatus.equals("NO_ACTIVE")||newStatus.equals("BLOCKED")) {
+        if (newStatus.equals("ACTIVE") || newStatus.equals("NO_ACTIVE") || newStatus.equals("BLOCKED")) {
 
             List<CardDTO> cardDTOList = cardRepository.getCardList();
             ResponsDTO result = null;
@@ -172,6 +177,39 @@ public class CardService {
             System.out.println(result.message());
         } else {
             System.out.println(result.message());
+        }
+
+    }
+
+    public boolean chackCardCompany() {
+        List<CardDTO> cardList = cardRepository.getCardList();
+        for (CardDTO cardDTO : cardList) {
+            if (cardDTO.getNumber().equals("9860454217805332")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void showCompanyCardBalance() {
+        List<CardDTO> cardDTOList = cardRepository.getCardList();
+        List<CardDTO> cardDTOList1 = null;
+        if (cardDTOList == null) {
+            System.out.println("No information found!!!");
+        } else {
+            for (CardDTO cardDTO : cardDTOList) {
+                if (cardDTO.getNumber().equals("9860454217805332") && cardDTO.getStatus().equals(Status.ACTIVE)) {
+                     cardDTOList1 = cardRepository.showCompanyCardBalance();
+                }
+            }
+
+            if (cardDTOList1==null){
+                System.out.println("Information about such a card was not found in the database!!!");
+            }else {
+                for (CardDTO cardDTO : cardDTOList1) {
+                    System.out.println(cardDTO);
+                }
+            }
         }
 
     }

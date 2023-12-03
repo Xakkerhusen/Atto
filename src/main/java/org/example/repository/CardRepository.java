@@ -5,6 +5,7 @@ import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
 import org.example.dto.ResponsDTO;
 import org.example.enums.Status;
+import org.example.enums.TransactionType;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -139,7 +140,7 @@ public class CardRepository {
         return new ResponsDTO("Error!", false);
     }
 
-    public ResponsDTO reFill(String cardNumber, ProfileDTO profile,double amount) {
+    public ResponsDTO reFill(String cardNumber, ProfileDTO profile, double amount) {
         int res=0;
 
         try {
@@ -183,8 +184,6 @@ public class CardRepository {
         if (res > 0) {
             return new ResponsDTO("Depositing money to the card has been done successfully 👌👌👌", true);
         }
-
-
         return new ResponsDTO("Error Fill!!!",false);
     }
 
@@ -254,4 +253,79 @@ public class CardRepository {
         }
         return new ResponsDTO("Operation error occurred!!!",false);
     }
+
+    public ResponsDTO updateCardBalance(String cardNumber, double amount) {
+        int res=0;
+
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            String sql = "update card set balance=balance-? where number=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, cardNumber);
+            res = preparedStatement.executeUpdate();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (res > 0) {
+            return new ResponsDTO("from balance "+amount+" withdrawals.", true);
+        }
+        return new ResponsDTO("Error Fill!!!",false);
+
+    }
+
+    public ResponsDTO updateCardCompany(double amount) {
+        int res=0;
+
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            String sql = "update card set balance=balance+? where number=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, "9860454217805332");
+            res = preparedStatement.executeUpdate();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (res > 0) {
+            return new ResponsDTO("from balance "+amount+" withdrawals.", true);
+        }
+        return new ResponsDTO("Error Fill!!!",false);
+
+    }
+
+
+    public List<CardDTO> showCompanyCardBalance() {
+        List<CardDTO> cardList = new LinkedList<>();
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            Statement statement = connection.createStatement();
+
+            String sql = "select * from card where number='9860454217805332'";
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                CardDTO card = new CardDTO();
+                card.setNumber(resultSet.getString("number"));
+                card.setExp_date(resultSet.getDate("exp_date").toLocalDate());
+                card.setBalance(resultSet.getDouble("balance"));
+                card.setStatus(Status.valueOf(resultSet.getString("status")));
+                card.setPhone(resultSet.getString("phone"));
+                card.setCreated_date(resultSet.getTimestamp("created_date").toLocalDateTime());
+                cardList.add(card);
+            }
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cardList;
+    }
+
 }
+

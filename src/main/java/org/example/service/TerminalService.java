@@ -79,7 +79,6 @@ public class TerminalService {
         ResponsDTO result = null;
         if (terminalList == null) {
             System.out.println("Terminal if not exist!!!");
-            return;
         } else {
             for (TerminalDTO terminalDTO : terminalList) {
                 if (terminalDTO.getCode().equals(terminalCode)) {
@@ -97,4 +96,15 @@ public class TerminalService {
         }
 
     }
+
+    public boolean chackTerminalCode(String terminalCode) {
+        List<TerminalDTO> terminalList = terminalRepository.getTerminalList();
+        for (TerminalDTO terminalDTO : terminalList) {
+            if (terminalDTO.getCode().equals(terminalCode)&&terminalDTO.getStatus().equals(Status.ACTIVE)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
