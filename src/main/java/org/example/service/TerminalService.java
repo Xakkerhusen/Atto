@@ -1,17 +1,22 @@
 package org.example.service;
 
+import lombok.Setter;
+import org.example.controller.Appl;
 import org.example.dto.ResponsDTO;
 import org.example.dto.TerminalDTO;
 import org.example.enums.Status;
+import org.example.repository.ProfileRepository;
 import org.example.repository.TerminalRepository;
 
 import java.util.List;
-
+@Setter
 public class TerminalService {
-    TerminalRepository terminalRepository = new TerminalRepository();
+//    TerminalRepository terminalRepository;//spring da tajriba oxshamadi
+
+    TerminalRepository terminalRepository;
 
     public void creatTerminal(TerminalDTO terminal) {
-        ResponsDTO responsDTO = terminalRepository.creatTerminal(terminal);
+        ResponsDTO responsDTO = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).creatTerminal(terminal);
         if (responsDTO.success()) {
             System.out.println(responsDTO.message());
         } else {
@@ -20,7 +25,7 @@ public class TerminalService {
     }
 
     public void showTerminalList() {
-        List<TerminalDTO> terminalList = terminalRepository.getTerminalList();
+        List<TerminalDTO> terminalList = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).getTerminalList();
 
         if (terminalList != null) {
             for (TerminalDTO terminalDTO : terminalList) {
@@ -37,7 +42,7 @@ public class TerminalService {
 
 
     public void updateTerminal(TerminalDTO terminal, String address) {
-        ResponsDTO responsDTO = terminalRepository.updateTerminal(terminal, address);
+        ResponsDTO responsDTO = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).updateTerminal(terminal, address);
         if (responsDTO.success()) {
             System.out.println(responsDTO.message());
         } else {
@@ -47,7 +52,7 @@ public class TerminalService {
 
     public void changeTerminalStatusByAdmin(String terminalCode, String newTerminalStatus) {
         if (newTerminalStatus.equals("ACTIVE") || newTerminalStatus.equals("NO_ACTIVE") || newTerminalStatus.equals("BLOCKED")) {
-            List<TerminalDTO> terminalList = terminalRepository.getTerminalList();
+            List<TerminalDTO> terminalList = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).getTerminalList();
             ResponsDTO result = null;
             if (terminalList == null) {
                 System.out.println("Terminal if not exist!!!");
@@ -55,7 +60,7 @@ public class TerminalService {
             } else {
                 for (TerminalDTO terminalDTO : terminalList) {
                     if (terminalDTO.getCode().equals(terminalCode)) {
-                        result = terminalRepository.changeTerminalStatusByAdmin(terminalCode, newTerminalStatus);
+                        result = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).changeTerminalStatusByAdmin(terminalCode, newTerminalStatus);
                     }
                 }
 
@@ -75,14 +80,14 @@ public class TerminalService {
     }
 
     public void deleteTerminal(String terminalCode) {
-        List<TerminalDTO> terminalList = terminalRepository.getTerminalList();
+        List<TerminalDTO> terminalList = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).getTerminalList();
         ResponsDTO result = null;
         if (terminalList == null) {
             System.out.println("Terminal if not exist!!!");
         } else {
             for (TerminalDTO terminalDTO : terminalList) {
                 if (terminalDTO.getCode().equals(terminalCode)) {
-                    result = terminalRepository.deleteTerminal(terminalCode);
+                    result = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).deleteTerminal(terminalCode);
                 }
             }
 
@@ -98,7 +103,7 @@ public class TerminalService {
     }
 
     public boolean chackTerminalCode(String terminalCode) {
-        List<TerminalDTO> terminalList = terminalRepository.getTerminalList();
+        List<TerminalDTO> terminalList = Appl.applicationContext.getBean("terminalRepository", TerminalRepository.class).getTerminalList();
         for (TerminalDTO terminalDTO : terminalList) {
             if (terminalDTO.getCode().equals(terminalCode)&&terminalDTO.getStatus().equals(Status.ACTIVE)){
                 return true;
@@ -106,5 +111,6 @@ public class TerminalService {
         }
         return false;
     }
+
 
 }

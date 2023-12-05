@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import lombok.Setter;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
@@ -11,7 +12,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
-
+@Setter
 public class CardRepository {
     public boolean createCard(CardDTO card) {
         int res = 0;

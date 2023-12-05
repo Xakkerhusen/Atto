@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import lombok.Setter;
 import org.example.db.DatabaseUtil;
 import org.example.dto.ProfileDTO;
 import org.example.enums.ProfileRole;
@@ -8,7 +9,7 @@ import org.example.enums.Status;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
-
+@Setter
 public class ProfileRepository {
 
     public ProfileDTO login(ProfileDTO profileDTO) {

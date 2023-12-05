@@ -1,6 +1,7 @@
 package org.example.controller;
 
 
+import lombok.Setter;
 import org.example.db.DatabaseUtil;
 import org.example.dto.CardDTO;
 import org.example.dto.ProfileDTO;
@@ -11,9 +12,9 @@ import org.example.enums.Status;
 import org.example.enums.TransactionType;
 import org.example.repository.TransactionRepository;
 import org.example.service.CardService;
+import org.example.service.ProfileService;
 import org.example.service.TerminalService;
 import org.example.service.TransactionService;
-import org.example.service.UserService;
 import org.example.utils.ScannerUtils;
 
 import java.awt.*;
@@ -22,16 +23,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
-
+@Setter
 public class Controller {
 
     static ScannerUtils scanner = new ScannerUtils();
-    static UserService userService = new UserService();
+
+    ProfileService userService = new ProfileService();
     CardService cardService = new CardService();
     TerminalService terminalService = new TerminalService();
     TransactionService transactionService = new TransactionService();
     TransactionRepository transactionRepository = new TransactionRepository();
 
+/*  spring da tajriba oxshamadi
+    ProfileService userService;
+    CardService cardService;
+    TerminalService terminalService;
+    TransactionService transactionService;
+    TransactionRepository transactionRepository;
+*/
 
     public void start() {
         System.out.println();
@@ -44,20 +53,13 @@ public class Controller {
             showMain();
             int action = getAction();
             switch (action) {
-                case 1 -> {
-                    login();
-                }
-                case 2 -> {
-                    registration();
-                }
-                default -> {
-                    System.out.println("Wrong action selected!!!");
-                }
+                case 1 -> login();
+                case 2 -> registration();
+                default -> System.out.println("Wrong action selected!!!");
             }
         } while (true);
 
     }
-
     private void registration() {
 
         String name = scanner.nextLine("Enter name:");
@@ -87,7 +89,6 @@ public class Controller {
         }
 
     }
-
     private void login() {
         String phoneNumber = null;
         String password = null;
@@ -129,7 +130,6 @@ public class Controller {
                 6.Statistic
                 0. Exit""");
     }
-
     private void adminMenu(ProfileDTO profile) {
         do {
             System.out.println();
@@ -150,59 +150,6 @@ public class Controller {
             }
         } while (true);
     }
-
-    private void showCompanyCardBalance() {
-        cardService.showCompanyCardBalance();
-    }
-
-    private void transactionList() {
-        boolean result =transactionService.transactionList();
-        if (result) {
-            System.out.println("No transaction has been completed!!!");
-        } else {
-            List<TransactionDTO> transactionList = transactionRepository.getAllTransactions();
-            for (TransactionDTO transactionDTO : transactionList) {
-                System.out.println(transactionDTO);
-            }
-        }
-    }
-
-
-    private void showStatisticMenu() {
-        System.out.println("""
-                1.Bugungi to'lovlar
-                2.Kunlik to'lovlar (bir kunlik to'lovlar)
-                3.Oraliq to'lovlar
-                4.Umumiy balance (company card dagi pulchalar)
-                5. Transaction by Terminal
-                6.Transaction By Card
-                7.Exit
-                """);
-    }
-
-    private void statisticmenu() {
-        System.out.println("-*-*-**--**-STATISTIC MENU*-*-*-*-*-*-");
-        showStatisticMenu();
-        int action = getAction();
-        switch (action) {
-            case 0 -> {
-                return;
-            }
-            case 1 -> paymentsToday();///chala
-            case 2 -> {
-            }
-            case 3 -> {
-            }
-            case 4 -> {
-            }
-            case 5 -> {
-            }
-            case 6 -> {
-            }
-        }
-    }
-
-
     private static void showUserMenu() {
         System.out.println("""
                  1. Add Card:          
@@ -215,7 +162,6 @@ public class Controller {
                  0. Exit               
                 """);
     }
-
     private void userMenu(ProfileDTO profile) {
         do {
             showUserMenu();
@@ -239,6 +185,38 @@ public class Controller {
     }
 
 
+
+    private void showStatisticMenu() {
+        System.out.println("""
+                1.Bugungi to'lovlar
+                2.Kunlik to'lovlar (bir kunlik to'lovlar)
+                3.Oraliq to'lovlar
+                4.Umumiy balance (company card dagi pulchalar)
+                5. Transaction by Terminal
+                6.Transaction By Card
+                0.Exit
+                """);
+    }
+    private void statisticmenu() {
+        System.out.println("-*-*-**--**-STATISTIC MENU*-*-*-*-*-*-");
+        do {
+        System.out.println();
+        showStatisticMenu();
+            int action = getAction();
+            switch (action) {
+                case 0 -> {
+                    return;
+                }
+                case 1 -> paymentsToday();///chala
+                case 2 -> dailyFees();
+                case 3 -> interimPayments();
+                case 4 -> showCompanyCardBalance();
+                case 5 -> transactionByTerminal();
+                case 6 -> transactionByCard();
+                default -> System.out.println("Wrong action selected!!!");
+            }
+        }while (true);
+    }
     private static int showTerminalMenu() {
         System.out.println();
         System.out.println("******TERMINAL SETTING *****");
@@ -252,7 +230,6 @@ public class Controller {
         int option = scanner.nextInt("Choose option: ");
         return option;
     }
-
     private void terminalMenu() {
         do {
             int option = showTerminalMenu();
@@ -271,8 +248,6 @@ public class Controller {
         } while (true);
 
     }
-
-
     private void profileMenu(ProfileDTO profile) {
 
         do {
@@ -298,7 +273,6 @@ public class Controller {
             }
         } while (true);
     }
-
     private void changeProfileStatusMenu() {
         do {
             System.out.println();
@@ -319,8 +293,6 @@ public class Controller {
 
         } while (true);
     }
-
-
     private void cardMenu(ProfileDTO profile) {
         do {
             System.out.println();
@@ -349,6 +321,75 @@ public class Controller {
 
     }
 
+
+
+
+
+
+    private void transactionByCard() {
+        String cardNumber = scanner.nextLine("Enter card number: ");
+        boolean result = transactionService.transactionByCard(cardNumber);
+        if (!result) {
+            System.out.println("No transaction was made from a card with such a card number!!!");
+        }else {
+            List<TransactionDTO> transactionDTOS = transactionRepository.transactionByCard(cardNumber);
+            for (TransactionDTO transactionDTO : transactionDTOS) {
+                System.out.println(transactionDTO);
+            }
+        }
+    }
+    private void transactionByTerminal() {
+        String terminalCode = scanner.nextLine("Enter terminal code: ");
+        boolean result = transactionService.transactionByTerminal(terminalCode);
+        if (!result) {
+            System.out.println("No transaction was made from a terminal with such a code!!!");
+        }else {
+            List<TransactionDTO> transactionDTOS = transactionRepository.transactionByTerminal(terminalCode);
+            for (TransactionDTO transactionDTO : transactionDTOS) {
+                System.out.println(transactionDTO);
+            }
+        }
+    }
+    private void interimPayments() {
+        String day1 = scanner.nextLine("Enter the day (yyyy-MM-dd): ");
+        String day2 = scanner.nextLine("Enter the day (yyyy-MM-dd): ");
+        boolean result = transactionService.interimPayments(day1,day2);
+        if (!result){
+            System.out.println("Transaction not implemented!!!");
+        }else {
+            List<TransactionDTO> transactionDTOS = transactionRepository.interimPayments(day1,day1);
+            for (TransactionDTO transactionDTO : transactionDTOS) {
+                System.out.println(transactionDTO);
+            }
+        }
+    }
+    private void dailyFees() {
+        String day = scanner.nextLine("Enter the day (yyyy-MM-dd): ");
+        boolean result = transactionService.dailyFees(day);
+        if (!result){
+            System.out.println("Transaction not implemented!!!");
+        }else {
+            List<TransactionDTO> transactionDTOS = transactionRepository.dailyFees(day);
+            for (TransactionDTO transactionDTO : transactionDTOS) {
+                System.out.println(transactionDTO);
+            }
+        }
+
+    }
+    private void showCompanyCardBalance() {
+        cardService.showCompanyCardBalance();
+    }
+    private void transactionList() {
+        boolean result =transactionService.transactionList();
+        if (result) {
+            System.out.println("No transaction has been completed!!!");
+        } else {
+            List<TransactionDTO> transactionList = transactionRepository.getAllTransactions();
+            for (TransactionDTO transactionDTO : transactionList) {
+                System.out.println(transactionDTO);
+            }
+        }
+    }
     private void paymentsToday() {
         boolean result = transactionService.getTransactionToday();
 
@@ -362,7 +403,6 @@ public class Controller {
         }
 
     }
-
     private void transactionByUser() {
         String cardNumber = scanner.nextLine("Enter card number:");
         boolean result = transactionService.getTransaction(cardNumber);
@@ -375,19 +415,16 @@ public class Controller {
             }
         }
     }
-
     private void makePayment() {
         String cardNumber = scanner.nextLine("Enter  card number: ");
         String terminalCode = scanner.nextLine("Enter  terminal code: ");
         double amount = scanner.nextDouble("Enter amount: ");
         transactionService.makePayment(cardNumber, terminalCode, amount, TransactionType.PAYMENT);
     }
-
     private void deleteTerminal() {
         String terminalCode = scanner.nextLine("Enter terminal code: ");
         terminalService.deleteTerminal(terminalCode);
     }
-
     private void changeTerminalStatusByAdmin() {
         String terminalCode = scanner.nextLine("Enter terminal code ");
         String newTerminalStatus = scanner.nextLine("Enter  new terminal status (NO_ACTIVE or ACTIVE or BLOCKED): ");
@@ -395,7 +432,6 @@ public class Controller {
 
 
     }
-
     private void updateTerminal() {
         String terminalCode, terminalAddress;
         do {
@@ -407,11 +443,9 @@ public class Controller {
 
         terminalService.updateTerminal(terminal, terminalAddress);
     }
-
     private void showTerminalList() {
         terminalService.showTerminalList();
     }
-
     private void createTerminal() {
 //        (code unique,address)
         String terminalCode, terminalAddress;
@@ -426,24 +460,20 @@ public class Controller {
         terminalService.creatTerminal(terminal);
 
     }
-
     private void changeProfileStatus(Status status) {
         String phoneNumber = scanner.nextLine("Enter Phone Number: ");
         cardService.changeProfileStatus(status, phoneNumber);
     }
-
     private void deleteCardByAdmin() {
         String cardNumber = scanner.nextLine("Enter card number: ");
         cardService.deleteCardByAdmin(cardNumber);
     }
-
     private void changeCardStatusByAdmin() {
         String cardNumber = scanner.nextLine("Enter card number: ");
         String newStatus = scanner.nextLine("Enter new status (ACTIVE or NO_ACTIVE or BLOCKED): ");
         cardService.changeCardStatusByAdmin(newStatus, cardNumber);
 
     }
-
     public void showCardsByAdmin() {
         List<CardDTO> cardList = cardService.getCardList();
         if (cardList != null) {
@@ -458,7 +488,6 @@ public class Controller {
             }
         }
     }
-
     private void updateCardByAdmin(ProfileDTO profile) {
 //        3. Update Card (number,exp_date)
         String cardNumber = scanner.nextLine("Enter Card number: ");
@@ -467,7 +496,6 @@ public class Controller {
         cardService.updateCard(cardNumber, expDate, profile);
 
     }
-
     private void createCardByAmin(ProfileDTO profile) {
         String cardNumber;
         int year;
@@ -483,25 +511,21 @@ public class Controller {
         cardService.createCard(card);
 
     }
-
     private void reFillCard(ProfileDTO profile) {
         String cardNumber = scanner.nextLine("Enter Card number: ");
         double amount = scanner.nextInt("Enter amount: ");
         cardService.reFillCard(profile, cardNumber, amount, TransactionType.REFILL);
 
     }
-
     private void deleteCardByUser(ProfileDTO profile) {
         String cardNumber = scanner.nextLine("Enter Card number: ");
         cardService.deleteCard(profile, cardNumber);
 
     }
-
     private void changeCardStatusByUser(ProfileDTO profile) {
         String cardNumber = scanner.nextLine("Enter Card number: ");
         cardService.changeCardStatusByUser(profile, cardNumber);
     }
-
     private void showCardsByUser(ProfileDTO profile) {
         List<CardDTO> ownCards = cardService.getOwnCards(profile);
         if (ownCards.isEmpty()) {
@@ -518,7 +542,6 @@ public class Controller {
             }
         }
     }
-
     private void addCardByUser(ProfileDTO profile) {
         String cardNumber;
         do {
@@ -531,12 +554,10 @@ public class Controller {
             System.out.println("Card not added !!!");
         }
     }
-
     private int getAction() {
         int option = scanner.nextInt("Choose action: ");
         return option;
     }
-
     private void showMain() {
         System.out.print("""
                  1. Login        
