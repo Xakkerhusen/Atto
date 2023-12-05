@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import lombok.Setter;
 import org.example.db.DatabaseUtil;
 import org.example.dto.ResponsDTO;
 import org.example.dto.TerminalDTO;
@@ -8,7 +9,7 @@ import org.example.enums.Status;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
-
+@Setter
 public class TerminalRepository {
     public ResponsDTO creatTerminal(TerminalDTO terminal) {
 
@@ -128,4 +129,6 @@ public class TerminalRepository {
             return new ResponsDTO("There is an error in the information ", false);
         }
     }
+
+
 }
